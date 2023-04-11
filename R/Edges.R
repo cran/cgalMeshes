@@ -20,8 +20,8 @@
 #' library(cgalMeshes)
 #' library(rgl)
 #' mesh <- cgalMesh$new(dodecahedron3d())
-#' extEdges <- exteriorEdges(mesh$edges())
-#' vertices <- mesh$vertices()
+#' extEdges <- exteriorEdges(mesh$getEdges())
+#' vertices <- mesh$getVertices()
 #' open3d(windowRect = 50 + c(0, 0, 512, 512), zoom = 0.9)
 #' shade3d(dodecahedron3d(), color = "tomato")
 #' plotEdges(vertices, extEdges)
@@ -44,8 +44,6 @@ exteriorEdges <- function(edgesDF, angleThreshold = 1) {
 #' @param edgesAsTubes Boolean, whether to draw the edges as tubes
 #' @param tubesRadius the radius of the tubes when \code{edgesAsTubes=TRUE}
 #' @param verticesAsSpheres Boolean, whether to draw the vertices as spheres
-#' @param only integer vector made of the indices of the vertices you want
-#'   to plot (as spheres), or \code{NULL} to plot all vertices
 #' @param spheresRadius the radius of the spheres when
 #'   \code{verticesAsSpheres=TRUE}
 #' @param spheresColor the color of the spheres when
@@ -53,7 +51,7 @@ exteriorEdges <- function(edgesDF, angleThreshold = 1) {
 #'
 #' @return No value, just produces a 3D graphic.
 #'
-#' @importFrom rgl cylinder3d shade3d lines3d spheres3d
+#' @importFrom rgl cylinder3d shade3d segments3d spheres3d
 #' @export
 #'
 #' @examples
@@ -61,10 +59,10 @@ exteriorEdges <- function(edgesDF, angleThreshold = 1) {
 #' library(rgl)
 #' 
 #' mesh <- cgalMesh$new(pentagrammicPrism, clean = FALSE)
-#' vertices <- mesh$vertices()
-#' edges <- mesh$edges()
+#' vertices <- mesh$getVertices()
+#' edges <- mesh$getEdges()
 #' extEdges <- exteriorEdges(edges)
-#' tmesh <- mesh$triangulate()$getMesh(normals = FALSE)
+#' tmesh <- mesh$triangulate()$getMesh()
 #' 
 #' \donttest{open3d(windowRect = 50 + c(0, 0, 512, 512), zoom = 0.9)
 #' shade3d(tmesh, color = "navy")
@@ -90,26 +88,29 @@ plotEdges <- function(
     edgesAsTubes = TRUE,
     tubesRadius = 0.03,
     verticesAsSpheres = TRUE,
-    only = NULL,
     spheresRadius = 0.05,
     spheresColor = color
 ){
   edges <- as.matrix(edges[, c(1L, 2L)])
-  for(i in 1L:nrow(edges)){
-    edge <- edges[i, ]
-    if(edgesAsTubes){
+  nedges <- nrow(edges)
+  if(edgesAsTubes) {
+    for(i in 1L:nedges){
+      edge <- edges[i, ]
       tube <- cylinder3d(
         vertices[edge, ], radius = tubesRadius, sides = 90
       )
       shade3d(tube, color = color)
-    }else{
-      lines3d(vertices[edge, ], color = color, lwd = lwd)
     }
+  } else {
+    pts <- matrix(NA_real_, nrow = 2L*nedges, ncol = 3L)
+    is_v1 <- rep(c(TRUE, FALSE), times = nedges)
+    pts[is_v1, ]  <- vertices[edges[, 1L], ]
+    pts[!is_v1, ] <- vertices[edges[, 2L], ]
+    segments3d(pts, color = color, lwd = lwd)
   }
   if(verticesAsSpheres){
-    if(!is.null(only)){
-      vertices <- vertices[only, ]
-    }
+    only <- unique(c(edges))
+    vertices <- vertices[only, ]
     spheres3d(vertices, radius = spheresRadius, color = spheresColor)
   }
   invisible(NULL)

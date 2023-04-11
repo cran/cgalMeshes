@@ -28,13 +28,19 @@ sphereMesh <- function(x = 0, y = 0, z = 0, r = 1, iterations = 3L) {
 #' @title Torus mesh
 #' @description Triangle mesh of a torus.
 #'
-#' @param R,r major and minor radii, positive numbers
+#' @param R,r major and minor radii, positive numbers; \code{R} is 
+#'   ignored if \code{p1}, \code{p2} and \code{p3} are given
+#' @param p1,p2,p3 three points or \code{NULL}; if not \code{NULL}, 
+#'   the function returns a mesh of the torus whose equator passes 
+#'   through these three points and with minor radius \code{r}; if 
+#'   \code{NULL}, the torus has equatorial plane z=0 and the 
+#'   z-axis as revolution axis
 #' @param nu,nv numbers of subdivisions, integers (at least 3)
 #'
 #' @return A triangle \strong{rgl} mesh (class \code{mesh3d}).
 #' @export
 #'
-#' @importFrom rgl tmesh3d
+#' @importFrom rgl tmesh3d translate3d rotate3d
 #'
 #' @examples
 #' library(cgalMeshes)
@@ -44,7 +50,42 @@ sphereMesh <- function(x = 0, y = 0, z = 0, r = 1, iterations = 3L) {
 #' view3d(0, 0, zoom = 0.75)
 #' shade3d(mesh, color = "green")
 #' wire3d(mesh)
-torusMesh <- function(R, r, nu = 50, nv = 30){
+#' 
+#' # Villarceau circles ####
+#' Villarceau <- function(beta, theta0, phi) {
+#'   c(
+#'     cos(theta0 + beta) * cos(phi),
+#'     sin(theta0 + beta) * cos(phi),
+#'     cos(beta) * sin(phi)
+#'   ) / (1 - sin(beta) * sin(phi))
+#' }
+#' ncircles <- 30
+#' if(require("randomcoloR")) {
+#'   colors <- 
+#'     randomColor(ncircles, hue = "random", luminosity = "dark")
+#' } else {
+#'   colors <- rainbow(ncircles)
+#' }
+#' theta0_ <- seq(0, 2*pi, length.out = ncircles+1)[-1L]
+#' phi <- 0.7
+#' \donttest{open3d(windowRect = 50 + c(0, 0, 512, 512), zoom = 0.8)
+#' for(i in seq_along(theta0_)) {
+#'   theta0 <- theta0_[i]
+#'   p1 <- Villarceau(0, theta0, phi)
+#'   p2 <- Villarceau(2, theta0, phi)
+#'   p3 <- Villarceau(4, theta0, phi)
+#'   rmesh <- torusMesh(r = 0.05, p1 = p1, p2 = p2, p3 = p3)
+#'   shade3d(rmesh, color = colors[i])
+#' }}
+torusMesh <- function(R, r, p1 = NULL, p2 = NULL, p3 = NULL, nu = 50, nv = 30) {
+  transformation <- !is.null(p1) && !is.null(p2) && !is.null(p3)
+  if(transformation) {
+    ccircle <- circumcircle(p1, p2, p3)
+    R <- ccircle[["radius"]]
+    # !! we have to take the inverse matrix for rgl::rotate3d
+    rotMatrix <- rotationFromTo(ccircle[["normal"]], c(0, 0, 1))
+    center <- ccircle[["center"]]
+  }
   stopifnot(isPositiveNumber(R), isPositiveNumber(r))
   stopifnot(R > r)
   stopifnot(nu >= 3, nv >= 3)
@@ -104,12 +145,21 @@ torusMesh <- function(R, r, nu = 50, nv = 30){
   k_ <- k1 + j_
   tris1[, k_] <- rbind(j_, l_, k_)
   tris2[, k_] <- rbind(j_, jp1_, l_)
-  tmesh3d(
-    vertices = vs,
-    indices = cbind(tris1, tris2),
-    normals = normals,
+  rmesh <- tmesh3d(
+    vertices    = vs,
+    indices     = cbind(tris1, tris2),
+    normals     = normals,
     homogeneous = FALSE
   )
+  if(transformation) {
+    rmesh <- translate3d(
+      rotate3d(
+        rmesh, matrix = rotMatrix
+      ),
+      x = center[1L], y = center[2L], z = center[3L]
+    )
+  }
+  rmesh
 }
 
 #' @title Cyclide mesh
@@ -170,7 +220,7 @@ cyclideMesh <- function(a, c, mu, nu = 90L, nv = 40L){
   b2 <- (a*mu*(c+mu)*(a-c) + bb2 - c*c + bb*(c*(a-mu-c) + 2*a*mu))/denb2
   omegaT <- (b1 + b2)/2
   OmegaT <- c(omegaT, 0, 0)
-  tormesh <- torusMesh(R, r, nu, nv)
+  tormesh <- torusMesh(R, r, nu = nu, nv = nv)
   rtnormals <- r * tormesh[["normals"]][1L:3L, ]
   xvertices <- tormesh[["vb"]][1L:3L, ] + OmegaT
   for(i in 1L:nu){
@@ -285,4 +335,28 @@ HopfTorusMesh <- function(
     normals     = NULL,
     homogeneous = FALSE
   ))
+}
+
+#' @title Iso-oriented cuboid
+#' @description Mesh of an iso-oriented cuboid, i.e. a cuboid with 
+#'   edges parallel to the axes.
+#'
+#' @param lcorner lower corner, a point whose coordinates must be 
+#'   lower than those of the upper corner
+#' @param ucorner upper corner, a point whose coordinates must be 
+#'   greater than those of the lower corner
+#'
+#' @return A \strong{rgl} mesh, i.e. a \code{mesh3d} object.
+#' @export
+#' @importFrom rgl cube3d translate3d scale3d
+isoCuboidMesh <- function(lcorner, ucorner) {
+  stopifnot(all(lcorner <= ucorner))
+  center <- (lcorner + ucorner) / 2
+  ax <- ucorner[1L] - lcorner[1L]
+  ay <- ucorner[2L] - lcorner[2L]
+  az <- ucorner[3L] - lcorner[3L]
+  translate3d(
+    scale3d(cube3d(), ax/2, ay/2, az/2),
+    center[1L], center[2L], center[3L]
+  )
 }

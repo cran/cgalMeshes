@@ -13,13 +13,76 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // AFSreconstruction_cpp
-Rcpp::XPtr<EMesh3> AFSreconstruction_cpp(const Rcpp::NumericMatrix pts);
-RcppExport SEXP _cgalMeshes_AFSreconstruction_cpp(SEXP ptsSEXP) {
+Rcpp::XPtr<EMesh3> AFSreconstruction_cpp(const Rcpp::NumericMatrix pts, const unsigned nneighs);
+RcppExport SEXP _cgalMeshes_AFSreconstruction_cpp(SEXP ptsSEXP, SEXP nneighsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Rcpp::NumericMatrix >::type pts(ptsSEXP);
-    rcpp_result_gen = Rcpp::wrap(AFSreconstruction_cpp(pts));
+    Rcpp::traits::input_parameter< const unsigned >::type nneighs(nneighsSEXP);
+    rcpp_result_gen = Rcpp::wrap(AFSreconstruction_cpp(pts, nneighs));
+    return rcpp_result_gen;
+END_RCPP
+}
+// SSSreconstruction_cpp
+Rcpp::XPtr<EMesh3> SSSreconstruction_cpp(const Rcpp::NumericMatrix pts, const size_t scaleIterations, const unsigned nneighs, const unsigned nsamples, const bool separateShells, const bool forceManifold, const double borderAngle);
+RcppExport SEXP _cgalMeshes_SSSreconstruction_cpp(SEXP ptsSEXP, SEXP scaleIterationsSEXP, SEXP nneighsSEXP, SEXP nsamplesSEXP, SEXP separateShellsSEXP, SEXP forceManifoldSEXP, SEXP borderAngleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::NumericMatrix >::type pts(ptsSEXP);
+    Rcpp::traits::input_parameter< const size_t >::type scaleIterations(scaleIterationsSEXP);
+    Rcpp::traits::input_parameter< const unsigned >::type nneighs(nneighsSEXP);
+    Rcpp::traits::input_parameter< const unsigned >::type nsamples(nsamplesSEXP);
+    Rcpp::traits::input_parameter< const bool >::type separateShells(separateShellsSEXP);
+    Rcpp::traits::input_parameter< const bool >::type forceManifold(forceManifoldSEXP);
+    Rcpp::traits::input_parameter< const double >::type borderAngle(borderAngleSEXP);
+    rcpp_result_gen = Rcpp::wrap(SSSreconstruction_cpp(pts, scaleIterations, nneighs, nsamples, separateShells, forceManifold, borderAngle));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gTriangle
+Rcpp::XPtr<EMesh3> gTriangle(Rcpp::NumericVector A, Rcpp::NumericVector B, Rcpp::NumericVector C, double s, int iterations);
+RcppExport SEXP _cgalMeshes_gTriangle(SEXP ASEXP, SEXP BSEXP, SEXP CSEXP, SEXP sSEXP, SEXP iterationsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type A(ASEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type B(BSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type C(CSEXP);
+    Rcpp::traits::input_parameter< double >::type s(sSEXP);
+    Rcpp::traits::input_parameter< int >::type iterations(iterationsSEXP);
+    rcpp_result_gen = Rcpp::wrap(gTriangle(A, B, C, s, iterations));
+    return rcpp_result_gen;
+END_RCPP
+}
+// meshTopology
+Rcpp::IntegerMatrix meshTopology(int nu, int nv, bool uperiodic, bool vperiodic);
+RcppExport SEXP _cgalMeshes_meshTopology(SEXP nuSEXP, SEXP nvSEXP, SEXP uperiodicSEXP, SEXP vperiodicSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type nu(nuSEXP);
+    Rcpp::traits::input_parameter< int >::type nv(nvSEXP);
+    Rcpp::traits::input_parameter< bool >::type uperiodic(uperiodicSEXP);
+    Rcpp::traits::input_parameter< bool >::type vperiodic(vperiodicSEXP);
+    rcpp_result_gen = Rcpp::wrap(meshTopology(nu, nv, uperiodic, vperiodic));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sTriangle
+Rcpp::XPtr<EMesh3> sTriangle(Rcpp::NumericVector A, Rcpp::NumericVector B, Rcpp::NumericVector C, Rcpp::NumericVector center, double radius, unsigned int iterations);
+RcppExport SEXP _cgalMeshes_sTriangle(SEXP ASEXP, SEXP BSEXP, SEXP CSEXP, SEXP centerSEXP, SEXP radiusSEXP, SEXP iterationsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type A(ASEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type B(BSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type C(CSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type center(centerSEXP);
+    Rcpp::traits::input_parameter< double >::type radius(radiusSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type iterations(iterationsSEXP);
+    rcpp_result_gen = Rcpp::wrap(sTriangle(A, B, C, center, radius, iterations));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -27,7 +90,11 @@ END_RCPP
 RcppExport SEXP _rcpp_module_boot_class_CGALmesh();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_cgalMeshes_AFSreconstruction_cpp", (DL_FUNC) &_cgalMeshes_AFSreconstruction_cpp, 1},
+    {"_cgalMeshes_AFSreconstruction_cpp", (DL_FUNC) &_cgalMeshes_AFSreconstruction_cpp, 2},
+    {"_cgalMeshes_SSSreconstruction_cpp", (DL_FUNC) &_cgalMeshes_SSSreconstruction_cpp, 7},
+    {"_cgalMeshes_gTriangle", (DL_FUNC) &_cgalMeshes_gTriangle, 5},
+    {"_cgalMeshes_meshTopology", (DL_FUNC) &_cgalMeshes_meshTopology, 4},
+    {"_cgalMeshes_sTriangle", (DL_FUNC) &_cgalMeshes_sTriangle, 6},
     {"_rcpp_module_boot_class_CGALmesh", (DL_FUNC) &_rcpp_module_boot_class_CGALmesh, 0},
     {NULL, NULL, 0}
 };

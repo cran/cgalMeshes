@@ -21,6 +21,8 @@ R6 based utilities for 3D meshes.
 
 ![](https://raw.githubusercontent.com/stla/MeshesTools/main/inst/screenshots/Togliatti.gif)
 
+![](https://raw.githubusercontent.com/stla/cgalMeshes/main/inst/screenshots/clippedCylinders.gif)
+
 
 ### Fairing
 
@@ -30,6 +32,21 @@ R6 based utilities for 3D meshes.
 ### Decomposition into convex parts
 
 ![](https://raw.githubusercontent.com/stla/MeshesOperations/master/inst/screenshots/pentagrammicPrism.png)
+
+
+### Convex hull
+
+![](https://raw.githubusercontent.com/stla/cgalMeshes/main/inst/screenshots/oloid.gif)
+
+
+### Subdivision methods
+
+![](https://raw.githubusercontent.com/stla/cgalMeshes/main/inst/screenshots/Hopf_LoopSubdivision.png)
+
+
+### Hole filling
+
+![](https://raw.githubusercontent.com/stla/cgalMeshes/main/inst/screenshots/holeFilling.png)
 
 
 ### Boolean operations
@@ -76,9 +93,70 @@ Volume, area, centroid, distance between a point and a mesh, connected
 components.
 
 
-### Blog post
+## More features
 
-['CGAL' meets 'R6': the 'cgalMeshes' package](https://laustep.github.io/stlahblog/posts/cgalMeshes.html)
+There are more features in the **github** branch, to install with:
+
+```r
+remotes::install_github("stla/cgalMeshes@github")
+```
+
+### Poisson reconstruction
+
+*Spider cage:*
+
+![](https://raw.githubusercontent.com/stla/SurfaceReconstruction/master/inst/PoissonExamples/SpiderCage.png)
+
+Here is a series of three images which show the effect of this `spacing` 
+parameter (0.05, 0.02, 0.005):
+
+![](https://raw.githubusercontent.com/stla/SurfaceReconstruction/master/inst/PoissonExamples/SolidMobiusStrip_spacings.png)
+
+*Stanford bunny:*
+
+![](https://raw.githubusercontent.com/stla/SurfaceReconstruction/master/inst/PoissonExamples/StanfordBunny.png)
+
+*Stanford dragon:*
+
+![](https://raw.githubusercontent.com/stla/SurfaceReconstruction/master/inst/PoissonExamples/StanfordDragon.png)
+
+
+### Minkowski addition
+
+*Octahedron + sphere:*
+
+![](https://raw.githubusercontent.com/stla/MeshesOperations/master/inst/screenshots/OctahedronPlusSphere.gif)
+
+*Tetrahedron + truncated icosahedron:*
+
+![](https://raw.githubusercontent.com/stla/MeshesOperations/master/inst/screenshots/TetrahedronPlusTruncatedIcosahedron.gif)
+
+*Septuaginta + great stellated dodecahedron:*
+
+![](https://raw.githubusercontent.com/stla/MinkowskiSum/main/inst/screenshots/septuaginta_gsdodecahedron.gif)
+
+*Stanford bunny + sphere:*
+
+![](https://raw.githubusercontent.com/stla/MinkowskiSum/main/inst/screenshots/bunny.png)
+
+
+### Shape smoothing
+
+*Hopf torus:*
+
+![](https://raw.githubusercontent.com/stla/MeshesOperations/master/inst/screenshots/HopfTorusSmoothed.gif)
+
+*Stanford bunny:*
+
+![](https://raw.githubusercontent.com/stla/MeshesOperations/master/inst/screenshots/StanfordBunnySmoothed.gif)
+
+
+
+## Blog posts
+
+- ['CGAL' meets 'R6': the 'cgalMeshes' package](https://laustep.github.io/stlahblog/posts/cgalMeshes.html)
+
+- [Update of 'cgalMeshes'](https://laustep.github.io/stlahblog/posts/cgalMeshes2.html)
 
 
 
