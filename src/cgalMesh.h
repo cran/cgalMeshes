@@ -6,6 +6,7 @@
 #include <RcppColors.h>
 
 #define CGAL_EIGEN3_ENABLED 1
+#define PIA_TAG CGAL::Parallel_if_available_tag
 
 #include "cgalMeshes_types.h"
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
@@ -149,12 +150,15 @@ namespace PMP = CGAL::Polygon_mesh_processing;
 
 // -------------------------------------------------------------------------- //
 template <typename MeshT, typename PointT>
-MeshT csoup2mesh(std::vector<PointT>, std::vector<std::vector<int>>, const bool);
+MeshT csoup2mesh(std::vector<PointT>, std::vector<std::vector<size_t>>, const bool);
 
-std::vector<std::vector<int>> list_to_faces(const Rcpp::List);
+std::vector<std::vector<size_t>> list_to_faces(const Rcpp::List);
 
 template <typename PointT>
 std::vector<PointT> matrix_to_points3(const Rcpp::NumericMatrix);
+
+template <typename PointT>
+Rcpp::NumericMatrix points3_to_matrix(std::vector<PointT>);
 
 template <typename KernelT, typename MeshT, typename PointT>
 Rcpp::DataFrame getEdges(MeshT&);
@@ -168,7 +172,7 @@ Rcpp::List getFaces(MeshT&);
 
 void Message(std::string);
 
-EMesh3 readMeshFile(const std::string, bool);
+EMesh3 readMeshFile(const std::string, bool, bool);
 void writeMeshFile(
   const std::string, const int, const bool, std::string, EMesh3&
 );
@@ -200,7 +204,7 @@ void copy_property(
   EMesh3&, EMesh3&, std::map<SourceDescriptor, TargetDescriptor>, std::string 
 );
 
-//////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 struct ClipVisitor : 
   public PMP::Corefinement::Default_visitor<EMesh3>
@@ -210,16 +214,7 @@ struct ClipVisitor :
   }
 
   void after_subface_created(face_descriptor fnew, const EMesh3 & tm) {
-    if(*is_tm) {
-      if(tm.property_map<face_descriptor, std::size_t>("f:i").second) {
-        (*fmap_tm).insert(std::make_pair(fnew, *ofaceindex));
-      } else {
-        *is_tm = false;
-        (*fmap_clipper).insert(std::make_pair(fnew, *ofaceindex));
-      }
-    } else {
-      (*fmap_clipper).insert(std::make_pair(fnew, *ofaceindex));
-    }
+    (*FACEMAPS[&tm])[fnew] = *ofaceindex;
   }
 
   void after_face_copy(
@@ -231,17 +226,44 @@ struct ClipVisitor :
   
   ClipVisitor()
     : ofaceindex(new face_descriptor()),
-      fmap_tm(new MapBetweenFaces()),
-      fmap_clipper(new MapBetweenFaces()),
-      ftargets(new MapBetweenFaces()),
-      is_tm(new bool(true))
+      ftargets(new MapBetweenFaces())
+  {
+    FACEMAPS.reserve(2);
+  }
+  
+  std::shared_ptr<face_descriptor> ofaceindex;
+  std::shared_ptr<MapBetweenFaces> ftargets;
+  boost::container::flat_map<const EMesh3*, MapBetweenFaces*> FACEMAPS;
+};
+
+struct ClipVisitor2 : 
+  public PMP::Corefinement::Default_visitor<EMesh3>
+{
+  void before_subface_creations(face_descriptor fsplit, const EMesh3 & tm) {
+    *ofaceindex = fsplit;
+  }
+  
+  void after_subface_created(face_descriptor fnew, const EMesh3 & tm) {
+    if(tm.property_map<face_descriptor, std::size_t>("f:dummy").second){ 
+      (*FACEMAP)[fnew] = *ofaceindex;
+    }
+  }
+  
+  void after_face_copy(
+      face_descriptor fsrc, const EMesh3 & tmsrc, 
+      face_descriptor ftgt, const EMesh3 & tmtgt
+  ) {
+    (*ftargets).insert(std::make_pair(ftgt, fsrc));
+  }
+  
+  ClipVisitor2()
+    : ofaceindex(new face_descriptor()),
+      ftargets(new MapBetweenFaces())
   {}
   
   std::shared_ptr<face_descriptor> ofaceindex;
-  std::shared_ptr<MapBetweenFaces> fmap_tm;
-  std::shared_ptr<MapBetweenFaces> fmap_clipper;
   std::shared_ptr<MapBetweenFaces> ftargets;
-  std::shared_ptr<bool> is_tm;
+  MapBetweenFaces* FACEMAP;
 };
 
 

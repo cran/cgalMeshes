@@ -5,14 +5,14 @@
 #include "MODULE.h"
 
 RCPP_MODULE(class_CGALmesh) {
-  using namespace Rcpp;
+  using namespace Rcpp; 
   class_<CGALmesh>("CGALmesh")
     .constructor<
       const NumericMatrix, const List, bool,
       Nullable<NumericMatrix>, Nullable<StringVector>, Nullable<StringVector>
     >()
     .constructor<XPtr<EMesh3>>()
-    .constructor<Rcpp::String, bool>()
+    .constructor<Rcpp::String, bool, bool>()
     .field("xptr", &CGALmesh::xptr)
     .method("area", &CGALmesh::area)
     .method("assignFaceColors", &CGALmesh::assignFaceColors)
@@ -54,6 +54,8 @@ RCPP_MODULE(class_CGALmesh) {
     .method("getVertices", &CGALmesh::getVertices)
     .method("getNormals", &CGALmesh::getNormals)
     .method("getRmesh", &CGALmesh::getRmesh)
+    .method("HausdorffApproximate", &CGALmesh::HausdorffApproximate)
+    .method("HausdorffEstimate", &CGALmesh::HausdorffEstimate)
     .method("intersection", &CGALmesh::intersection)
     .method("isClosed", &CGALmesh::isClosed)
     .method("isotropicRemeshing", &CGALmesh::isotropicRemeshing)
@@ -70,6 +72,7 @@ RCPP_MODULE(class_CGALmesh) {
     .method("print", &CGALmesh::print)
     .method("removeSelfIntersections", &CGALmesh::removeSelfIntersections)
     .method("reverseFaceOrientations", &CGALmesh::reverseFaceOrientations)
+    .method("sampleMesh", &CGALmesh::sampleMesh)
     .method("sharpEdges", &CGALmesh::sharpEdges)
     .method("Sqrt3Subdivision", &CGALmesh::Sqrt3Subdivision)
     .method("subtract", &CGALmesh::subtract)

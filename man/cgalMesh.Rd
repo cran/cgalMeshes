@@ -902,6 +902,8 @@ mesh$whereIs(rbind(pt1, pt2))
 \item \href{#method-cgalMesh-getNormals}{\code{cgalMesh$getNormals()}}
 \item \href{#method-cgalMesh-getMesh}{\code{cgalMesh$getMesh()}}
 \item \href{#method-cgalMesh-getVertices}{\code{cgalMesh$getVertices()}}
+\item \href{#method-cgalMesh-HausdorffApproximate}{\code{cgalMesh$HausdorffApproximate()}}
+\item \href{#method-cgalMesh-HausdorffEstimate}{\code{cgalMesh$HausdorffEstimate()}}
 \item \href{#method-cgalMesh-intersection}{\code{cgalMesh$intersection()}}
 \item \href{#method-cgalMesh-isClosed}{\code{cgalMesh$isClosed()}}
 \item \href{#method-cgalMesh-isotropicRemeshing}{\code{cgalMesh$isotropicRemeshing()}}
@@ -916,6 +918,7 @@ mesh$whereIs(rbind(pt1, pt2))
 \item \href{#method-cgalMesh-orientToBoundVolume}{\code{cgalMesh$orientToBoundVolume()}}
 \item \href{#method-cgalMesh-removeSelfIntersections}{\code{cgalMesh$removeSelfIntersections()}}
 \item \href{#method-cgalMesh-reverseOrientation}{\code{cgalMesh$reverseOrientation()}}
+\item \href{#method-cgalMesh-sample}{\code{cgalMesh$sample()}}
 \item \href{#method-cgalMesh-selfIntersects}{\code{cgalMesh$selfIntersects()}}
 \item \href{#method-cgalMesh-sharpEdges}{\code{cgalMesh$sharpEdges()}}
 \item \href{#method-cgalMesh-Sqrt3Subdivision}{\code{cgalMesh$Sqrt3Subdivision()}}
@@ -961,10 +964,9 @@ vectors of integers (each one gives the vertex indices of a face)}
 \item{\code{normals}}{if \code{mesh} is missing, must be \code{NULL} or a 
 numeric matrix with three columns and as many rows as vertices}
 
-\item{\code{clean}}{Boolean, no effect if the mesh is given by a file, 
-otherwise it indicates whether to clean the mesh (merge duplicated 
-vertices and duplicated faces, remove isolated vertices); set to 
-\code{FALSE} if you know your mesh is already clean}
+\item{\code{clean}}{Boolean value indicating whether to clean the mesh (merge 
+duplicated vertices and duplicated faces, remove isolated vertices); 
+set to \code{FALSE} if you know your mesh is already clean}
 }
 \if{html}{\out{</div>}}
 }
@@ -2330,6 +2332,58 @@ The vertices in a matrix.
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-cgalMesh-HausdorffApproximate"></a>}}
+\if{latex}{\out{\hypertarget{method-cgalMesh-HausdorffApproximate}{}}}
+\subsection{Method \code{HausdorffApproximate()}}{
+Approximate Hausdorff distance between the reference mesh
+  and another mesh.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{cgalMesh$HausdorffApproximate(mesh2, symmetric = TRUE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mesh2}}{a \code{cgalMesh} object}
+
+\item{\code{symmetric}}{Boolean, whether to consider the symmetric Hausdorff 
+distance.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A number. The algorithm uses some simulations and thus the 
+  result can vary.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-cgalMesh-HausdorffEstimate"></a>}}
+\if{latex}{\out{\hypertarget{method-cgalMesh-HausdorffEstimate}{}}}
+\subsection{Method \code{HausdorffEstimate()}}{
+Estimate of Hausdorff distance between the reference mesh
+  and another mesh.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{cgalMesh$HausdorffEstimate(mesh2, errorBound = 1e-04, symmetric = TRUE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{mesh2}}{a \code{cgalMesh} object}
+
+\item{\code{errorBound}}{a positive number, a bound on the error of the 
+estimate}
+
+\item{\code{symmetric}}{Boolean, whether to consider the symmetric Hausdorff 
+distance.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A number.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-cgalMesh-intersection"></a>}}
 \if{latex}{\out{\hypertarget{method-cgalMesh-intersection}{}}}
 \subsection{Method \code{intersection()}}{
@@ -2709,6 +2763,26 @@ mesh$isOutwardOriented() # FALSE
 
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-cgalMesh-sample"></a>}}
+\if{latex}{\out{\hypertarget{method-cgalMesh-sample}{}}}
+\subsection{Method \code{sample()}}{
+Random sampling on the mesh. The mesh must be triangle.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{cgalMesh$sample(nsims)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{nsims}}{integer, the desired number of simulations}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A \code{nsims x 3} matrix containing the simulations.
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-cgalMesh-selfIntersects"></a>}}
 \if{latex}{\out{\hypertarget{method-cgalMesh-selfIntersects}{}}}
 \subsection{Method \code{selfIntersects()}}{
@@ -3030,7 +3104,7 @@ mesh$whereIs(rbind(pt1, pt2))
 \subsection{Method \code{writeMeshFile()}}{
 Write mesh to a file.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{cgalMesh$writeMeshFile(filename, precision = 17, comments = "")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{cgalMesh$writeMeshFile(filename, precision = 17, comments = "", binary = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -3044,6 +3118,10 @@ places}
 
 \item{\code{comments}}{for \code{ply} extension only, a string to be included 
 in the header of the PLY file}
+
+\item{\code{binary}}{Boolean, for \code{ply} extension only, whether to write 
+a binary \code{ply} file; the mesh properties (vertex colors, face 
+colors, normals) are lost with this format}
 }
 \if{html}{\out{</div>}}
 }
