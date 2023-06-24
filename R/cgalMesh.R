@@ -61,16 +61,16 @@ cgalMesh <- R6Class(
     #' )}
     #' 
     #' # this one has colors: ####
-    #' meshFile <- system.file(
+    #' \donttest{meshFile <- system.file(
     #'   "extdata", "pentagrammicDipyramid.ply", package = "cgalMeshes"
     #' )
     #' mesh <- cgalMesh$new(meshFile)
     #' rmesh <- mesh$getMesh()
-    #' \donttest{library(rgl)
+    #' library(rgl)
     #' open3d(windowRect = 50 + c(0, 0, 512, 512), zoom = 0.85)
     #' shade3d(rmesh, meshColor = "faces")}
     "initialize" = function(
-    mesh, vertices, faces, normals = NULL, clean = FALSE
+      mesh, vertices, faces, normals = NULL, clean = FALSE
     ){
       # one can also initialize from an external pointer, but 
       # this is hidden to the user
@@ -306,7 +306,7 @@ cgalMesh <- R6Class(
     #'   this function returns the modified reference mesh.
     #' @examples 
     #' # cube clipped to sphere ####
-    #' library(cgalMeshes)
+    #' \donttest{library(cgalMeshes)
     #' library(rgl)
     #' mesh    <- cgalMesh$new(cube3d())$triangulate()
     #' clipper <- cgalMesh$new(sphereMesh(r= sqrt(2)))
@@ -318,7 +318,7 @@ cgalMesh <- R6Class(
     #' mesh2$computeNormals()
     #' rglmesh1 <- mesh1$getMesh()
     #' rglmesh2 <- mesh2$getMesh()
-    #' \donttest{open3d(windowRect = 50 + c(0, 0, 512, 512))
+    #' open3d(windowRect = 50 + c(0, 0, 512, 512))
     #' view3d(45, 45, zoom = 0.9)
     #' shade3d(rglmesh1, meshColor = "faces")
     #' shade3d(rglmesh2, meshColor = "faces")}
@@ -394,7 +394,7 @@ cgalMesh <- R6Class(
     #'   the clipped mesh corresponding to the original mesh, the second 
     #'   one is the part of the clipped mesh corresponding to the plane.
     #' @examples 
-    #' library(cgalMeshes)
+    #' \donttest{library(cgalMeshes)
     #' library(rgl)
     #' rmesh <- sphereMesh()
     #' mesh <- cgalMesh$new(rmesh)
@@ -416,7 +416,7 @@ cgalMesh <- R6Class(
     #' mesh1$computeNormals()
     #' rClippedMesh1 <- mesh1$getMesh()
     #' rClippedMesh2 <- mesh2$getMesh()
-    #' \donttest{open3d(windowRect = 50 + c(0, 0, 512, 512))
+    #' open3d(windowRect = 50 + c(0, 0, 512, 512))
     #' view3d(70, 0)
     #' shade3d(rClippedMesh1, meshColor = "faces")
     #' shade3d(rClippedMesh2, color = "orange")}
@@ -503,12 +503,10 @@ cgalMesh <- R6Class(
       }
     },
 
-    #' @description tmp. 
-    #' @return tmp.
-    "collectGarbage" = function() {
-      . <- private[[".CGALmesh"]]$collectGarbage()
-      invisible(self)
-    },
+    # "collectGarbage" = function() {
+    #   . <- private[[".CGALmesh"]]$collectGarbage()
+    #   invisible(self)
+    # },
     
     #' @description Compute per-vertex normals of the mesh. 
     #' @return The current \code{cgalMesh} object, invisibly. 
@@ -672,6 +670,13 @@ cgalMesh <- R6Class(
       invisible(self)
     },
     
+    # #' @description Dual mesh.
+    # #' @return The dual mesh.
+    # "dual" = function() {
+    #   xptr <- private[[".CGALmesh"]]$dual()
+    #   cgalMesh$new(clean = xptr)
+    # },
+    
     #' @description Faces containing a given vertex.
     #' @param v a vertex index
     #' @return An integer vector, the indices of the faces containing \code{v}.
@@ -687,7 +692,7 @@ cgalMesh <- R6Class(
     #' @param indices the indices of the vertices in the region to be faired
     #' @return The modified \code{cgalMesh} object.
     #' @examples 
-    #' library(cgalMeshes)
+    #' \donttest{library(cgalMeshes)
     #' rglHopf <- HopfTorusMesh(nu = 100, nv = 100)
     #' hopf <- cgalMesh$new(rglHopf)
     #' # squared norms of the vertices
@@ -697,7 +702,7 @@ cgalMesh <- R6Class(
     #' hopf$fair(indices)
     #' rglHopf_faired <- hopf$getMesh()
     #' # plot
-    #' \donttest{library(rgl)
+    #' library(rgl)
     #' open3d(windowRect = 50 + c(0, 0, 900, 450))
     #' mfrow3d(1L, 2L)
     #' view3d(0, 0, zoom = 0.8)
@@ -992,11 +997,13 @@ cgalMesh <- R6Class(
     },
     
     #' @description Get the edges of the mesh.
-    #' @return A dataframe with five columns; the first two ones give the 
+    #' @return A dataframe with seven columns; the first two ones give the 
     #'   vertex indices of each edge (one edge per row), the third one gives 
     #'   the lengths of each edge, the fourth one indicates whether the edges 
-    #'   is a border edge, and the fifth one gives the dihedral angles 
-    #'   in degrees between the two faces adjacent to each edge 
+    #'   is a border edge, the fifth one gives the dihedral angles 
+    #'   in degrees between the two faces adjacent to each edge, and the last 
+    #'   two ones gives the indices of the faces the edge belongs to (the 
+    #'   second index is \code{NA} if the edge is a border edge). 
     #' @examples 
     #' library(rgl)
     #' mesh <- cgalMesh$new(dodecahedron3d())
@@ -1019,11 +1026,12 @@ cgalMesh <- R6Class(
       }
     },
 
-    #' @description Get the centroids and the areas of the faces, for a 
-    #'   triangle mesh only.
-    #' @return A matrix with four columns: the first three ones provide the 
-    #'   Cartesian coordinates of the centroids, the fourth one provides the 
-    #'   areas.
+    #' @description Get the centroids, the circumcenters, and the areas of the 
+    #'   faces, for a triangle mesh only.
+    #' @return A matrix with seven columns: the first three ones provide the 
+    #'   Cartesian coordinates of the centroids, the three next ones provide 
+    #'   the Cartesian coordinates of the circumcenters, and the last one 
+    #'   provides the areas.
     "getFacesInfo" = function() {
       private[[".CGALmesh"]]$getFacesInfo()
     },
@@ -1615,14 +1623,15 @@ cgalMesh <- R6Class(
     
     #' @description Write mesh to a file.
     #' @param filename path to the file to be written, with extension 
-    #'   \code{off} or \code{ply}
+    #'   \code{off} or \code{ply}; if you use the \code{ply} format, the mesh 
+    #'   properties (vertex colors, face colors, normals) are written in the 
+    #'   file
     #' @param precision a positive integer, the desired number of decimal 
     #'   places
     #' @param comments for \code{ply} extension only, a string to be included 
     #'   in the header of the PLY file
     #' @param binary Boolean, for \code{ply} extension only, whether to write 
-    #'   a binary \code{ply} file; the mesh properties (vertex colors, face 
-    #'   colors, normals) are lost with this format
+    #'   a binary \code{ply} file
     #' @return Nothing, just writes a file.
     "writeMeshFile" = function(
       filename, precision = 17, comments = "", binary = FALSE

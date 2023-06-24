@@ -26,12 +26,12 @@ plotEdges(
 )}
 
 # this one has colors: ####
-meshFile <- system.file(
+\donttest{meshFile <- system.file(
   "extdata", "pentagrammicDipyramid.ply", package = "cgalMeshes"
 )
 mesh <- cgalMesh$new(meshFile)
 rmesh <- mesh$getMesh()
-\donttest{library(rgl)
+library(rgl)
 open3d(windowRect = 50 + c(0, 0, 512, 512), zoom = 0.85)
 shade3d(rmesh, meshColor = "faces")}
 
@@ -104,7 +104,7 @@ mesh$centroid()}
 ## ------------------------------------------------
 
 # cube clipped to sphere ####
-library(cgalMeshes)
+\donttest{library(cgalMeshes)
 library(rgl)
 mesh    <- cgalMesh$new(cube3d())$triangulate()
 clipper <- cgalMesh$new(sphereMesh(r= sqrt(2)))
@@ -116,7 +116,7 @@ mesh2 <- meshes[[2]]
 mesh2$computeNormals()
 rglmesh1 <- mesh1$getMesh()
 rglmesh2 <- mesh2$getMesh()
-\donttest{open3d(windowRect = 50 + c(0, 0, 512, 512))
+open3d(windowRect = 50 + c(0, 0, 512, 512))
 view3d(45, 45, zoom = 0.9)
 shade3d(rglmesh1, meshColor = "faces")
 shade3d(rglmesh2, meshColor = "faces")}
@@ -171,7 +171,7 @@ shade3d(sphere, color = "yellow", alpha = 0.15)}
 ## Method `cgalMesh$clipToPlane`
 ## ------------------------------------------------
 
-library(cgalMeshes)
+\donttest{library(cgalMeshes)
 library(rgl)
 rmesh <- sphereMesh()
 mesh <- cgalMesh$new(rmesh)
@@ -193,7 +193,7 @@ mesh2 <- meshes[[2]]
 mesh1$computeNormals()
 rClippedMesh1 <- mesh1$getMesh()
 rClippedMesh2 <- mesh2$getMesh()
-\donttest{open3d(windowRect = 50 + c(0, 0, 512, 512))
+open3d(windowRect = 50 + c(0, 0, 512, 512))
 view3d(70, 0)
 shade3d(rClippedMesh1, meshColor = "faces")
 shade3d(rClippedMesh2, color = "orange")}
@@ -336,7 +336,7 @@ wire3d(rmesh, color = "black")}
 ## Method `cgalMesh$fair`
 ## ------------------------------------------------
 
-library(cgalMeshes)
+\donttest{library(cgalMeshes)
 rglHopf <- HopfTorusMesh(nu = 100, nv = 100)
 hopf <- cgalMesh$new(rglHopf)
 # squared norms of the vertices
@@ -346,7 +346,7 @@ indices <- which(normsq > 19)
 hopf$fair(indices)
 rglHopf_faired <- hopf$getMesh()
 # plot
-\donttest{library(rgl)
+library(rgl)
 open3d(windowRect = 50 + c(0, 0, 900, 450))
 mfrow3d(1L, 2L)
 view3d(0, 0, zoom = 0.8)
@@ -877,7 +877,6 @@ mesh$whereIs(rbind(pt1, pt2))
 \item \href{#method-cgalMesh-clip}{\code{cgalMesh$clip()}}
 \item \href{#method-cgalMesh-clipToPlane}{\code{cgalMesh$clipToPlane()}}
 \item \href{#method-cgalMesh-clipToIsoCuboid}{\code{cgalMesh$clipToIsoCuboid()}}
-\item \href{#method-cgalMesh-collectGarbage}{\code{cgalMesh$collectGarbage()}}
 \item \href{#method-cgalMesh-computeNormals}{\code{cgalMesh$computeNormals()}}
 \item \href{#method-cgalMesh-connectedComponents}{\code{cgalMesh$connectedComponents()}}
 \item \href{#method-cgalMesh-convexParts}{\code{cgalMesh$convexParts()}}
@@ -1500,19 +1499,6 @@ shade3d(bxmesh, color = "cyan", alpha = 0.3)
 
 }
 
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-cgalMesh-collectGarbage"></a>}}
-\if{latex}{\out{\hypertarget{method-cgalMesh-collectGarbage}{}}}
-\subsection{Method \code{collectGarbage()}}{
-tmp.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{cgalMesh$collectGarbage()}\if{html}{\out{</div>}}
-}
-
-\subsection{Returns}{
-tmp.
-}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-cgalMesh-computeNormals"></a>}}
@@ -2161,11 +2147,13 @@ Get the edges of the mesh.
 }
 
 \subsection{Returns}{
-A dataframe with five columns; the first two ones give the 
+A dataframe with seven columns; the first two ones give the 
   vertex indices of each edge (one edge per row), the third one gives 
   the lengths of each edge, the fourth one indicates whether the edges 
-  is a border edge, and the fifth one gives the dihedral angles 
-  in degrees between the two faces adjacent to each edge
+  is a border edge, the fifth one gives the dihedral angles 
+  in degrees between the two faces adjacent to each edge, and the last 
+  two ones gives the indices of the faces the edge belongs to (the 
+  second index is \code{NA} if the edge is a border edge).
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
@@ -2196,16 +2184,17 @@ The faces in a matrix if the mesh is triangle or quad,
 \if{html}{\out{<a id="method-cgalMesh-getFacesInfo"></a>}}
 \if{latex}{\out{\hypertarget{method-cgalMesh-getFacesInfo}{}}}
 \subsection{Method \code{getFacesInfo()}}{
-Get the centroids and the areas of the faces, for a 
-  triangle mesh only.
+Get the centroids, the circumcenters, and the areas of the 
+  faces, for a triangle mesh only.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{cgalMesh$getFacesInfo()}\if{html}{\out{</div>}}
 }
 
 \subsection{Returns}{
-A matrix with four columns: the first three ones provide the 
-  Cartesian coordinates of the centroids, the fourth one provides the 
-  areas.
+A matrix with seven columns: the first three ones provide the 
+  Cartesian coordinates of the centroids, the three next ones provide 
+  the Cartesian coordinates of the circumcenters, and the last one 
+  provides the areas.
 }
 }
 \if{html}{\out{<hr>}}
@@ -3111,7 +3100,9 @@ Write mesh to a file.
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{filename}}{path to the file to be written, with extension 
-\code{off} or \code{ply}}
+\code{off} or \code{ply}; if you use the \code{ply} format, the mesh 
+properties (vertex colors, face colors, normals) are written in the 
+file}
 
 \item{\code{precision}}{a positive integer, the desired number of decimal 
 places}
@@ -3120,8 +3111,7 @@ places}
 in the header of the PLY file}
 
 \item{\code{binary}}{Boolean, for \code{ply} extension only, whether to write 
-a binary \code{ply} file; the mesh properties (vertex colors, face 
-colors, normals) are lost with this format}
+a binary \code{ply} file}
 }
 \if{html}{\out{</div>}}
 }

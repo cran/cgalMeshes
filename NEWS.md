@@ -1,3 +1,15 @@
+# cgalMeshes 2.2.0
+
+- Implementation of the Minkowski sum of two meshes.
+
+- The two methods `$getEdges` and `$getFacesInfo` return more information.
+
+- The function `parametricMesh` gains three new arguments:
+  * `clean`, to merge duplicated vertices;
+  * `fcolor`, a function to assign a color at each vertex from its `(u,v)`-coordinates;
+  * `fnormal`, a function to assign a normal at each vertex from its `(u,v)`-coordinates.
+
+
 # cgalMeshes 2.1.0
 
 - The `$clip` method with `volume=TRUE` didn't correctly preserve the face properties (e.g. the face colors). Now it partially works: the face properties of the clipped mesh are correctly preserved, but not the face properties of the clipping mesh (help wanted).
